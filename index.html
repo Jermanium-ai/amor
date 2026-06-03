@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>Hey Leshine 🌸</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;touch-action:none;user-select:none}
+
+/* ── SCREENS ── */
+.screen{
+  position:fixed;inset:0;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .7s ease;
+  z-index:10;
+}
+.screen.active{opacity:1;pointer-events:all}
+
+/* ── SCREEN 0: OPENING ── */
+#s0{background:linear-gradient(145deg,#fff9f5 0%,#ffeef2 50%,#ffd6e0 100%)}
+
+.s0-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(4rem,22vw,7rem);
+  font-weight:300;
+  color:#2d1a1a;
+  letter-spacing:-.02em;
+  line-height:1;
+  position:relative;
+  z-index:2;
+}
+
+.s0-sub{
+  font-size:.75rem;
+  letter-spacing:.28em;
+  text-transform:uppercase;
+  color:#b07080;
+  margin-bottom:.8rem;
+  font-weight:300;
+}
+
+.s0-divider{
+  display:flex;align-items:center;gap:.8rem;
+  margin:1.2rem 0 2rem;
+  color:#e0a0b0;font-size:.85rem;
+}
+.s0-divider::before,.s0-divider::after{
+  content:'';flex:1;height:1px;
+  background:linear-gradient(90deg,transparent,#e0a0b0,transparent);
+}
+
+.tap-hint{
+  font-size:.72rem;letter-spacing:.2em;
+  text-transform:uppercase;color:#b07080;
+  opacity:.6;animation:breathe 2.5s ease-in-out infinite;
+}
+@keyframes breathe{0%,100%{opacity:.4;transform:translateY(0)}50%{opacity:.9;transform:translateY(-3px)}}
+
+/* ── SCREEN 1: TILT LEFT ── */
+#s1{background:linear-gradient(145deg,#f0faf5 0%,#d4f0e4 60%,#a8ddc8 100%)}
+/* ── SCREEN 2: TILT RIGHT ── */
+#s2{background:linear-gradient(145deg,#fff5f0 0%,#ffd8c0 60%,#ffb898 100%)}
+/* ── SCREEN 3: MESSAGE ── */
+#s3{background:linear-gradient(145deg,#fff9f5 0%,#ffeef2 50%,#ffd6e0 100%)}
+
+.tilt-label{
+  font-size:.7rem;letter-spacing:.25em;
+  text-transform:uppercase;color:rgba(40,30,30,.4);
+  margin-bottom:2.5rem;
+}
+
+.tilt-heading{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2.5rem,13vw,4rem);
+  font-weight:300;color:#2d1a1a;
+  line-height:1.1;text-align:center;
+  margin-bottom:.6rem;
+}
+.tilt-heading em{font-style:italic;color:#c05060}
+.tilt-heading.orange em{color:#c05818}
+
+.tilt-sub{
+  font-size:.82rem;color:rgba(40,30,30,.5);
+  margin-bottom:2rem;letter-spacing:.04em;
+}
+
+/* Phone wiggle anim */
+.phone-wrap{font-size:3.2rem;margin-bottom:1.5rem;display:block;transition:transform .2s ease}
+
+/* Fruit drop zone */
+.fruit-stage{
+  position:fixed;inset:0;
+  pointer-events:none;
+  z-index:50;overflow:hidden;
+}
+
+.fruit{
+  position:absolute;
+  font-size:clamp(1.8rem,8vw,2.8rem);
+  opacity:0;
+  /* JS sets top/left and animates */
+}
+
+/* Skip */
+.skip-btn{
+  position:fixed;bottom:2.2rem;left:50%;
+  transform:translateX(-50%);
+  background:rgba(255,255,255,.5);
+  border:1px solid rgba(0,0,0,.12);
+  color:rgba(40,30,30,.5);
+  padding:.45rem 1.4rem;border-radius:50px;
+  font-size:.72rem;letter-spacing:.1em;cursor:pointer;
+  backdrop-filter:blur(6px);z-index:100;
+  transition:opacity .3s;
+}
+
+/* Progress dots */
+.progress{
+  display:flex;gap:.5rem;
+  position:fixed;top:1.5rem;left:50%;
+  transform:translateX(-50%);z-index:200;
+}
+.pdot{
+  width:5px;height:5px;border-radius:50%;
+  background:rgba(40,30,30,.18);
+  transition:all .35s;
+}
+.pdot.on{background:rgba(40,30,30,.55);transform:scale(1.3)}
+
+/* Tilt indicator arc */
+.tilt-arc{
+  width:80px;height:80px;
+  border-radius:50%;
+  border:2px solid rgba(40,30,30,.1);
+  border-top-color:rgba(40,30,30,.5);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 1.8rem;
+  position:relative;
+  transition:transform .15s ease;
+}
+.tilt-arc-inner{font-size:1.8rem}
+
+/* ── MESSAGE SCREEN ── */
+.msg-wrap{
+  padding:2.5rem 2rem;
+  text-align:center;
+  max-width:340px;
+}
+.msg-icon{font-size:2.8rem;margin-bottom:1.5rem;animation:floatIcon 3s ease-in-out infinite}
+@keyframes floatIcon{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+.msg-main{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(1.6rem,7vw,2.1rem);
+  font-weight:300;
+  color:#2d1a1a;
+  line-height:1.4;
+  margin-bottom:1.2rem;
+}
+.msg-main em{font-style:italic;color:#c05060}
+
+.msg-second{
+  font-size:.9rem;
+  color:#8a5a60;
+  line-height:1.7;
+  font-weight:300;
+  margin-bottom:1.8rem;
+}
+
+.msg-sign{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:1rem;
+  color:#b07080;
+  letter-spacing:.04em;
+}
+
+/* Petal bg on message */
+.petal-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.msg-wrap{position:relative;z-index:2}
+
+.fall-petal{
+  position:absolute;top:-30px;
+  font-size:.9rem;opacity:0;
+  animation:petalDrop linear infinite;
+}
+@keyframes petalDrop{
+  0%{opacity:0;transform:translateY(-10px) rotate(0deg) translateX(0)}
+  8%{opacity:.7}
+  92%{opacity:.4}
+  100%{opacity:0;transform:translateY(105vh) rotate(420deg) translateX(20px)}
+}
+
+/* Entrance animation for message */
+.msg-wrap .msg-icon,
+.msg-wrap .msg-main,
+.msg-wrap .msg-second,
+.msg-wrap .msg-sign{
+  opacity:0;transform:translateY(18px);
+  transition:opacity .6s ease, transform .6s ease;
+}
+#s3.active .msg-icon{opacity:1;transform:translateY(0);transition-delay:.1s}
+#s3.active .msg-main{opacity:1;transform:translateY(0);transition-delay:.35s}
+#s3.active .msg-second{opacity:1;transform:translateY(0);transition-delay:.6s}
+#s3.active .msg-sign{opacity:1;transform:translateY(0);transition-delay:.85s}
+
+/* Fruit trail particle */
+@keyframes fruitFly {
+  0%  { opacity:1; transform: translate(0,0) rotate(0deg) scale(1); }
+  100%{ opacity:0; transform: translate(var(--tx), var(--ty)) rotate(var(--tr)) scale(.4); }
+}
+</style>
+</head>
+<body>
+
+<!-- Progress dots -->
+<div class="progress" id="progress">
+  <div class="pdot on" id="pd0"></div>
+  <div class="pdot" id="pd1"></div>
+  <div class="pdot" id="pd2"></div>
+  <div class="pdot" id="pd3"></div>
+</div>
+
+<!-- Fruit drop layer (global, above everything) -->
+<div class="fruit-stage" id="fruit-stage"></div>
+
+<!-- Skip button -->
+<button class="skip-btn" id="skip-btn" style="display:none">skip ↓</button>
+
+<!-- ══ SCREEN 0: OPENING ══ -->
+<div class="screen active" id="s0">
+  <p class="s0-sub">a little something for</p>
+  <h1 class="s0-name">Leshine</h1>
+  <div class="s0-divider">🌸</div>
+  <p class="tap-hint">tap to begin</p>
+</div>
+
+<!-- ══ SCREEN 1: TILT LEFT ══ -->
+<div class="screen" id="s1">
+  <p class="tilt-label">01 / 02</p>
+  <div class="tilt-arc" id="arc1">
+    <span class="tilt-arc-inner">📱</span>
+  </div>
+  <h2 class="tilt-heading">Tilt <em>left</em><br/>to begin</h2>
+  <p class="tilt-sub">← hold it for a moment</p>
+</div>
+
+<!-- ══ SCREEN 2: TILT RIGHT ══ -->
+<div class="screen" id="s2">
+  <p class="tilt-label">02 / 02</p>
+  <div class="tilt-arc" id="arc2">
+    <span class="tilt-arc-inner">📱</span>
+  </div>
+  <h2 class="tilt-heading orange">Now tilt <em>right</em></h2>
+  <p class="tilt-sub">hold right → just a sec</p>
+</div>
+
+<!-- ══ SCREEN 3: MESSAGE ══ -->
+<div class="screen" id="s3">
+  <div class="petal-bg" id="petal-bg"></div>
+  <div class="msg-wrap">
+    <div class="msg-icon">🌸</div>
+    <p class="msg-main">Just wanted to make you<br/><em>smile today.</em></p>
+    <p class="msg-second">
+      Tilt left. Tilt right. Now smile.<br/>
+      That last one wasn't optional, <strong>Sarah</strong>. 😗
+    </p>
+    <p class="msg-sign">— consider it done 🌿😊</p>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────
+var TILT_THRESHOLD = 35;   // degrees before fruits drop
+var HOLD_MS        = 600;  // ms to hold tilt before triggering
+var FRUITS_LEFT    = ['🍇','🍓','🫐','🍒','🍑','🥝','🍌'];
+var FRUITS_RIGHT   = ['🍊','🍋','🍎','🍉','🍍','🥭','🍐'];
+var FRUIT_COUNT    = 22;
+
+// ── STATE ────────────────────────────────────────────────────
+var currentScreen  = 0;
+var gyroEnabled    = false;
+var leftDone       = false;
+var rightDone      = false;
+var tiltHoldTimer  = null;
+var isTilting      = false;
+var mouseFallback  = false;
+
+// ── HELPERS ─────────────────────────────────────────────────
+function $(id){ return document.getElementById(id); }
+
+function setScreen(n){
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  $('s'+n).classList.add('active');
+  currentScreen = n;
+  updateDots(n);
+  if(n === 1 || n === 2){ $('skip-btn').style.display='block'; }
+  else { $('skip-btn').style.display='none'; }
+  if(n === 3){ spawnPetals(); }
+}
+
+function updateDots(n){
+  for(var i=0;i<4;i++){
+    var d=$('pd'+i);
+    d.classList.toggle('on', i===n);
+  }
+}
+
+// ── OPENING TAP ─────────────────────────────────────────────
+$('s0').addEventListener('click', function(){
+  requestGyro();
+  setScreen(1);
+});
+
+// ── SKIP ────────────────────────────────────────────────────
+$('skip-btn').addEventListener('click', function(){
+  if(currentScreen === 1 && !leftDone){
+    leftDone = true;
+    dropFruits('left', function(){ setTimeout(function(){ setScreen(2); }, 500); });
+  } else if(currentScreen === 2 && !rightDone){
+    rightDone = true;
+    dropFruits('right', function(){ setTimeout(function(){ setScreen(3); }, 500); });
+  }
+});
+
+// ── GYRO PERMISSION ─────────────────────────────────────────
+function requestGyro(){
+  if(typeof DeviceOrientationEvent !== 'undefined' &&
+     typeof DeviceOrientationEvent.requestPermission === 'function'){
+    DeviceOrientationEvent.requestPermission()
+      .then(function(r){ if(r==='granted') startGyro(); })
+      .catch(function(){});
+  } else {
+    startGyro();
+  }
+}
+
+function startGyro(){
+  window.addEventListener('deviceorientation', onGyro, true);
+  gyroEnabled = true;
+}
+
+// ── GYRO HANDLER ────────────────────────────────────────────
+function onGyro(e){
+  var gamma = e.gamma || 0; // left/right -90 to 90
+
+  // Animate the arc / phone icon
+  if(currentScreen === 1){
+    $('arc1').style.transform = 'rotate('+(gamma*0.6)+'deg)';
+  }
+  if(currentScreen === 2){
+    $('arc2').style.transform = 'rotate('+(gamma*0.6)+'deg)';
+  }
+
+  // LEFT tilt (negative gamma = phone tilted left)
+  if(currentScreen === 1 && !leftDone && gamma < -TILT_THRESHOLD){
+    if(!isTilting){
+      isTilting = true;
+      tiltHoldTimer = setTimeout(function(){
+        leftDone = true; isTilting = false;
+        dropFruits('left', function(){
+          setTimeout(function(){ setScreen(2); }, 700);
+        });
+      }, HOLD_MS);
+    }
+  } else if(currentScreen === 1 && !leftDone){
+    // reset if they un-tilt before hold completes
+    if(isTilting){ clearTimeout(tiltHoldTimer); isTilting = false; }
+  }
+
+  // RIGHT tilt (positive gamma = phone tilted right)
+  if(currentScreen === 2 && !rightDone && gamma > TILT_THRESHOLD){
+    if(!isTilting){
+      isTilting = true;
+      tiltHoldTimer = setTimeout(function(){
+        rightDone = true; isTilting = false;
+        dropFruits('right', function(){
+          setTimeout(function(){ setScreen(3); }, 700);
+        });
+      }, HOLD_MS);
+    }
+  } else if(currentScreen === 2 && !rightDone){
+    if(isTilting){ clearTimeout(tiltHoldTimer); isTilting = false; }
+  }
+}
+
+// ── FRUIT DROP ───────────────────────────────────────────────
+function dropFruits(side, cb){
+  var stage = $('fruit-stage');
+  var fruits = side === 'left' ? FRUITS_LEFT : FRUITS_RIGHT;
+  var W = window.innerWidth;
+  var H = window.innerHeight;
+  var launched = 0;
+
+  for(var i = 0; i < FRUIT_COUNT; i++){
+    (function(idx){
+      setTimeout(function(){
+        var el = document.createElement('span');
+        el.classList.add('fruit');
+        el.textContent = fruits[Math.floor(Math.random() * fruits.length)];
+
+        // Start position: from left or right EDGE of screen
+        var startX, startY, endX, endY;
+
+        if(side === 'left'){
+          // fruits fly in FROM the left edge
+          startX = -60;
+          startY = Math.random() * H * 0.75 + H * 0.05;
+          // land somewhere across the screen
+          endX = Math.random() * W * 0.8 + W * 0.1;
+          endY = H + 80;
+        } else {
+          // fruits fly in FROM the right edge
+          startX = W + 60;
+          startY = Math.random() * H * 0.75 + H * 0.05;
+          endX = Math.random() * W * 0.8;
+          endY = H + 80;
+        }
+
+        el.style.left = startX + 'px';
+        el.style.top  = startY + 'px';
+        el.style.opacity = '0';
+        stage.appendChild(el);
+
+        // Animate with JS keyframes
+        var duration = 900 + Math.random() * 600;
+        var rotation = (Math.random() * 720 - 360) + 'deg';
+        var startTime = null;
+        var dxTotal = endX - startX;
+        var dyTotal = endY - startY;
+
+        function animate(ts){
+          if(!startTime) startTime = ts;
+          var progress = Math.min((ts - startTime) / duration, 1);
+          // ease out cubic
+          var ease = 1 - Math.pow(1 - progress, 3);
+          // arc: add a slight arc in Y using sine
+          var arc = Math.sin(progress * Math.PI) * (H * 0.15);
+          var curX = startX + dxTotal * ease;
+          var curY = startY + dyTotal * ease - arc;
+          var rot  = parseFloat(rotation) * ease;
+          var scale = 1 - progress * 0.4;
+          var opacity = progress < 0.08 ? progress / 0.08
+                      : progress > 0.85 ? (1 - progress) / 0.15
+                      : 1;
+
+          el.style.left    = curX + 'px';
+          el.style.top     = curY + 'px';
+          el.style.opacity = opacity;
+          el.style.transform = 'rotate('+rot+'deg) scale('+scale+')';
+
+          if(progress < 1){
+            requestAnimationFrame(animate);
+          } else {
+            el.remove();
+            launched++;
+            if(launched === FRUIT_COUNT && cb) cb();
+          }
+        }
+        requestAnimationFrame(animate);
+
+      }, idx * 55 + Math.random() * 80);
+    })(i);
+  }
+}
+
+// ── PETALS ON MESSAGE ────────────────────────────────────────
+function spawnPetals(){
+  var bg = $('petal-bg');
+  bg.innerHTML = '';
+  var items = ['🌸','🌺','🌷','🌼','✿'];
+  for(var i = 0; i < 20; i++){
+    var p = document.createElement('span');
+    p.classList.add('fall-petal');
+    p.textContent = items[Math.floor(Math.random() * items.length)];
+    p.style.left = Math.random() * 100 + '%';
+    p.style.fontSize = (.6 + Math.random() * .5) + 'rem';
+    p.style.animationDuration = (5 + Math.random() * 7) + 's';
+    p.style.animationDelay    = (Math.random() * 6) + 's';
+    bg.appendChild(p);
+  }
+}
+
+// ── MOUSE FALLBACK (desktop preview) ────────────────────────
+setTimeout(function(){ if(!gyroEnabled) mouseFallback = true; }, 1000);
+
+document.addEventListener('mousemove', function(e){
+  if(!mouseFallback) return;
+  var cx = window.innerWidth / 2;
+  var simGamma = (e.clientX - cx) / cx * 90; // -90 to 90
+
+  if(currentScreen === 1){
+    $('arc1').style.transform = 'rotate('+(simGamma*0.6)+'deg)';
+    if(!leftDone && simGamma < -40){
+      if(!isTilting){
+        isTilting = true;
+        tiltHoldTimer = setTimeout(function(){
+          leftDone = true; isTilting = false;
+          dropFruits('left', function(){
+            setTimeout(function(){ setScreen(2); }, 700);
+          });
+        }, HOLD_MS);
+      }
+    } else if(!leftDone){
+      if(isTilting){ clearTimeout(tiltHoldTimer); isTilting = false; }
+    }
+  }
+
+  if(currentScreen === 2){
+    $('arc2').style.transform = 'rotate('+(simGamma*0.6)+'deg)';
+    if(!rightDone && simGamma > 40){
+      if(!isTilting){
+        isTilting = true;
+        tiltHoldTimer = setTimeout(function(){
+          rightDone = true; isTilting = false;
+          dropFruits('right', function(){
+            setTimeout(function(){ setScreen(3); }, 700);
+          });
+        }, HOLD_MS);
+      }
+    } else if(!rightDone){
+      if(isTilting){ clearTimeout(tiltHoldTimer); isTilting = false; }
+    }
+  }
+});
+</script>
+</body>
+</html>
